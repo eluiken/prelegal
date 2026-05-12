@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude mcp *)",
+      "Bash(git remote *)",
+      "mcp__github__issue_write",
+      "mcp__atlassian__getAccessibleAtlassianResources",
+      "mcp__atlassian__getJiraIssue",
+      "mcp__github__search_repositories",
+      "Bash(python3 -c \"import json,sys; data=json.load\\(sys.stdin\\); items=json.loads\\(data[0]['text']\\)['items']; [print\\(i['name'], '|', i['description']\\) for i in items]\")",
+      "Bash(python3 -c ' *)",
+      "mcp__github__get_file_contents",
+      "Bash(git checkout *)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/CommonPaper/Mutual-NDA/main/Mutual-NDA.md\" -o /Users/eppo.luiken/Projects/prelegal/templates/Mutual-NDA.md)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/CommonPaper/Mutual-NDA/main/Mutual-NDA-coverpage.md\" -o /Users/eppo.luiken/Projects/prelegal/templates/Mutual-NDA-coverpage.md)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/CommonPaper/CSA/main/CSA.md\" -o /Users/eppo.luiken/Projects/prelegal/templates/CSA.md)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/CommonPaper/Design-Partner-Agreement/main/design-partner-agreement.md\" -o /Users/eppo.luiken/Projects/prelegal/templates/design-partner-agreement.md)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/CommonPaper/SLA/main/sla.md\" -o /Users/eppo.luiken/Projects/prelegal/templates/sla.md)",
+      "Bash(curl -sL https://raw.githubusercontent.com/CommonPaper/__TRACKED_VAR__/main/README.md)",
+      "Bash(git *)",
+      "Bash(gh pr *)",
+      "mcp__github__create_pull_request",
+      "mcp__github__get_me",
+      "mcp__github__list_pull_requests",
+      "Bash(npx create-next-app@latest *)",
+      "Bash(npm install *)",
+      "Bash(cp /Users/eppo.luiken/Projects/prelegal/templates/Mutual-NDA.md /Users/eppo.luiken/Projects/prelegal/front-end/public/Mutual-NDA.md)",
+      "Bash(cp /Users/eppo.luiken/Projects/prelegal/templates/Mutual-NDA-coverpage.md /Users/eppo.luiken/Projects/prelegal/front-end/public/Mutual-NDA-coverpage.md)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(kill %1)",
+      "Bash(npm *)",
+      "Bash(grep -E \"^\\(html2canvas|jspdf|react-markdown\\)$\")",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(node *)",
+      "Bash(pkill -f \"next dev\")",
+      "mcp__atlassian__getTransitionsForJiraIssue",
+      "mcp__atlassian__transitionJiraIssue"
+    ]
+  }
+}
