@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import NDAForm from "@/components/NDAForm";
+import ChatPanel from "@/components/ChatPanel";
 import NDAPreview from "@/components/NDAPreview";
 import { defaultValues, NDAFormValues } from "@/lib/nda-template";
 
@@ -67,7 +67,7 @@ export default function NDAShell() {
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       <div className="w-80 flex-shrink-0 bg-white border-r border-gray-100 shadow-sm flex flex-col h-full">
-        <NDAForm
+        <ChatPanel
           values={values}
           onChange={setValues}
           onDownload={handleDownload}
