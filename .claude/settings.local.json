@@ -35,7 +35,10 @@
       "Bash(node *)",
       "Bash(pkill -f \"next dev\")",
       "mcp__atlassian__getTransitionsForJiraIssue",
-      "mcp__atlassian__transitionJiraIssue"
+      "mcp__atlassian__transitionJiraIssue",
+      "Bash(uv lock *)",
+      "Bash(chmod +x *)",
+      "Bash(bash *)"
     ]
   }
 }
