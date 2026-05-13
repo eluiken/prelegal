@@ -4,7 +4,7 @@ This is a SaaS product to allow users to draft legal agreements based on templat
 
 @catalog.json
 
-The current implementation supports all 11 document types via AI chat with full user authentication and document persistence.
+The catalog contains 12 document types. See the "What's implemented" section at the bottom for current status.
 
 Development process
 When instructed to build a feature:
@@ -15,7 +15,14 @@ Thoroughly test the feature with unit tests and integration tests and fix any is
 Submit a PR using your github tools
 
 AI design
-When writing code to make calls to LLMs, use your Cerebras skill to use LiteLLM via OpenRouter to the openrouter/openai/gpt-oss-120b model with Cerebras as the inference provider. You should use Structured Outputs so that you can interpret the results and populate fields in the legal document.
+When writing code to make calls to LLMs, use LiteLLM via OpenRouter. The free model fallback chain is defined in `backend/chat.py` and should be reused for any new LLM calls:
+
+1. `openrouter/openai/gpt-oss-120b:free` (primary)
+2. `openrouter/openai/gpt-oss-20b:free`
+3. `openrouter/google/gemma-4-31b-it:free`
+4. `openrouter/google/gemma-4-26b-a4b-it:free`
+
+Use `_completion()` from `backend/chat.py` which handles model fallback and retry logic automatically. For field extraction, use JSON-from-prompt parsing (not `response_format`) as it works across all free models.
 
 There is an OPENROUTER_API_KEY in the .env file in the project root.
 
@@ -46,3 +53,28 @@ Blue Primary: #209dd7
 Purple Secondary: #753991 (submit buttons)
 Dark Navy: #032147 (headings)
 Gray Text: #888888
+
+## What's implemented
+
+**Infrastructure (complete)**
+- Multi-stage Docker build: Node 20 builds Next.js static export, Python 3.12 + uv serves it via FastAPI
+- FastAPI backend at `http://localhost:8000` with SQLite at `/data/prelegal.db` (volume-mounted)
+- Static frontend served from `/app/static` via FastAPI's `StaticFiles`
+- Start/stop scripts for Mac, Linux, and Windows in `scripts/`
+- Health endpoint: `GET /api/health`
+
+**Auth (partial)**
+- Login page (`/login`) — form UI only; stores email to `localStorage`, no real credential validation
+- Auth guard on home route — redirects to `/login` if no `localStorage` entry
+
+**AI Chat — Mutual NDA (complete)**
+- `POST /api/chat/stream` — SSE streaming endpoint; streams AI reply tokens word-by-word, then emits a `fields` event with extracted NDA values
+- `backend/chat.py` — free model fallback chain with per-model retry/backoff; JSON-from-prompt field extraction compatible with all models
+- `frontend/components/ChatPanel.tsx` — chat UI with streaming bubbles, loading dots, error display (not committed to history), Download PDF button
+- Mutual NDA live preview updates in real-time as the AI extracts field values
+
+**Not yet implemented**
+- Real auth API endpoints (signup/signin with password hashing)
+- Multi-document support — only Mutual NDA is wired up; remaining 11 catalog types have templates in `templates/` but no UI
+- Document persistence (no save/load to DB)
+- Users table exists in SQLite but no API routes use it yet
