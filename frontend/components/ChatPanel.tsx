@@ -1,21 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { NDAFormValues } from "@/lib/nda-template";
-
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
 interface Props {
-  values: NDAFormValues;
-  onChange: (values: NDAFormValues) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  values: Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onChange: (values: Record<string, any>) => void;
   onDownload: () => void;
   downloading: boolean;
+  canDownload: boolean;
+  docTypeName: string;
+  docType: string;
 }
 
-export default function ChatPanel({ values, onChange, onDownload, downloading }: Props) {
+export default function ChatPanel({ values, onChange, onDownload, downloading, canDownload, docTypeName, docType }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -44,7 +47,7 @@ export default function ChatPanel({ values, onChange, onDownload, downloading }:
       const response = await fetch("/api/chat/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: msgs }),
+        body: JSON.stringify({ messages: msgs, doc_type: docType }),
       });
 
       if (!response.body) throw new Error("No response body");
@@ -124,7 +127,7 @@ export default function ChatPanel({ values, onChange, onDownload, downloading }:
       <div className="p-5 border-b border-gray-100 flex-shrink-0">
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-semibold" style={{ color: "#032147" }}>
-            NDA Assistant
+            {docTypeName} Assistant
           </h1>
           {streaming && (
             <span
@@ -134,7 +137,7 @@ export default function ChatPanel({ values, onChange, onDownload, downloading }:
           )}
         </div>
         <p className="text-xs mt-0.5" style={{ color: "#888888" }}>
-          Chat to fill in your Mutual NDA
+          Chat to fill in your {docTypeName}
         </p>
       </div>
 
@@ -224,14 +227,21 @@ export default function ChatPanel({ values, onChange, onDownload, downloading }:
           </button>
         </div>
 
-        <button
-          onClick={onDownload}
-          disabled={downloading}
-          className="w-full text-white text-sm font-medium py-2.5 rounded-lg transition-opacity hover:opacity-90 disabled:opacity-50"
-          style={{ backgroundColor: "#753991" }}
-        >
-          {downloading ? "Generating PDF…" : "Download PDF"}
-        </button>
+        <div className="space-y-1">
+          <button
+            onClick={onDownload}
+            disabled={downloading || !canDownload}
+            className="w-full text-white text-sm font-medium py-2.5 rounded-lg transition-opacity hover:opacity-90 disabled:opacity-50"
+            style={{ backgroundColor: "#753991" }}
+          >
+            {downloading ? "Generating PDF…" : "Download PDF"}
+          </button>
+          {!canDownload && !downloading && (
+            <p className="text-xs text-center" style={{ color: "#888888" }}>
+              Fill in required fields to enable download
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

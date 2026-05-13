@@ -2,40 +2,34 @@
 
 import { useRef, useState } from "react";
 import ChatPanel from "@/components/ChatPanel";
-import NDAPreview from "@/components/NDAPreview";
-import { defaultValues, NDAFormValues } from "@/lib/nda-template";
+import DocPreview from "@/components/DocPreview";
+import {
+  DocSchema,
+  GenericDocValues,
+  getDefaultValues,
+  isDocComplete,
+} from "@/lib/doc-schemas";
 
 interface Props {
+  schema: DocSchema;
   onBack?: () => void;
 }
 
-export default function NDAShell({ onBack }: Props) {
-  const [values, setValues] = useState<NDAFormValues>(defaultValues);
+export default function DocShell({ schema, onBack }: Props) {
+  const [values, setValues] = useState<GenericDocValues>(() => getDefaultValues(schema));
   const [downloading, setDownloading] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  const canDownload = Boolean(
-    (values.party1Company || values.party1Name).trim() &&
-    (values.party2Company || values.party2Name).trim() &&
-    values.governingLaw.trim() &&
-    values.jurisdiction.trim()
-  );
+  const canDownload = isDocComplete(schema, values);
 
   async function handleDownload() {
     if (!previewRef.current) return;
     setDownloading(true);
     try {
-      // html-to-image delegates rendering to the browser's SVG engine, which
-      // supports oklch/lab — Tailwind v4's color format. html2canvas has a
-      // hand-rolled CSS parser that throws on these modern color functions.
       const { toPng } = await import("html-to-image");
       const { default: jsPDF } = await import("jspdf");
 
       const el = previewRef.current;
-
-      // Clone into a detached body-level container so no overflow:hidden ancestor
-      // clips the capture. The clone retains Tailwind classes whose styles are
-      // already in the page stylesheet.
       const wrapper = document.createElement("div");
       wrapper.style.cssText =
         "position:fixed;top:0;left:-9999px;width:" + el.offsetWidth + "px;background:#fff;z-index:-1";
@@ -52,7 +46,9 @@ export default function NDAShell({ onBack }: Props) {
 
       const img = new Image();
       img.src = dataUrl;
-      await new Promise<void>((resolve) => { img.onload = () => resolve(); });
+      await new Promise<void>((resolve) => {
+        img.onload = () => resolve();
+      });
 
       const pdf = new jsPDF({ unit: "px", format: "a4", orientation: "portrait" });
       const pageWidth = pdf.internal.pageSize.getWidth();
@@ -69,7 +65,8 @@ export default function NDAShell({ onBack }: Props) {
 
       const party1 = values.party1Company || values.party1Name || "Party1";
       const party2 = values.party2Company || values.party2Name || "Party2";
-      pdf.save(`Mutual-NDA-${party1}-${party2}.pdf`);
+      const safeName = schema.name.replace(/[^a-zA-Z0-9]/g, "-");
+      pdf.save(`${safeName}-${party1}-${party2}.pdf`);
     } finally {
       setDownloading(false);
     }
@@ -92,16 +89,16 @@ export default function NDAShell({ onBack }: Props) {
         <div className="w-80 flex-shrink-0 bg-white border-r border-gray-100 shadow-sm flex flex-col h-full">
           <ChatPanel
             values={values}
-            onChange={(v) => setValues(v as NDAFormValues)}
+            onChange={(v) => setValues(v as GenericDocValues)}
             onDownload={handleDownload}
             downloading={downloading}
             canDownload={canDownload}
-            docTypeName="Mutual NDA"
-            docType="Mutual-NDA.md"
+            docTypeName={schema.name}
+            docType={schema.filename}
           />
         </div>
         <div className="flex-1 flex flex-col overflow-hidden">
-          <NDAPreview values={values} previewRef={previewRef} />
+          <DocPreview schema={schema} values={values} previewRef={previewRef} />
         </div>
       </div>
     </div>

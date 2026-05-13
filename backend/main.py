@@ -56,6 +56,7 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: list[ChatMessage]
+    doc_type: str = "Mutual-NDA.md"
 
 
 @app.get("/api/health")
@@ -67,7 +68,7 @@ async def health():
 async def chat_stream(req: ChatRequest):
     messages = [{"role": m.role, "content": m.content} for m in req.messages]
     return StreamingResponse(
-        stream_chat(messages),
+        stream_chat(messages, req.doc_type),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
