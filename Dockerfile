@@ -19,7 +19,7 @@ WORKDIR /app/backend
 RUN uv sync --no-dev
 
 # Copy application code
-COPY backend/main.py /app/backend/
+COPY backend/ /app/backend/
 
 # Copy built frontend static files
 COPY --from=frontend-builder /build/out /app/static
